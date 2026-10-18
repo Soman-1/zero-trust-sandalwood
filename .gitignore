@@ -1,0 +1,92 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.hypothesis/
+
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.cache/
+
+# Logs
+*.log
+logs/
+
+# Local database (recreated via SEED_DEMO_DATA / migrations)
+*.db
+*.db-wal
+*.db-shm
+
+# AI model binary weights (large; see app/ai/weights/README.md)
+app/ai/weights/*.joblib
+app/ai/weights/*.pt
+# Keep metrics, checksums, and docs
+!app/ai/weights/README.md
+!app/ai/weights/model_metrics.json
+!app/ai/weights/*.sha256
+
+# Node / frontend
+node_modules/
+frontend/dist/
+frontend/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Hardhat / blockchain generated
+blockchain/node_modules/
+blockchain/cache/
+blockchain/artifacts/
+blockchain/coverage/
+blockchain/typechain-types/
+blockchain/coverage.json
+
+# Docker / local volumes (if ever mounted here)
+postgres_data/
+redis_data/
+
+# Generated / tool caches
+graphify-out/
+pdf_pages/
+.agents/
+
+# Research papers and paper-generation artifacts (keep local only)
+IEEE_Research_Paper*
+H_D_Aparna_IEEE_Research_Paper*
+*_Research_Paper.*
+paper_source.html
+generate_ieee_pdf.py
+update_headings_script.py
+UNIFIED_ARCHITECTURE_REPORT.md
+Zero_Trust_Sandalwood_Architecture_Report.pdf
+scripts/generate_architecture_pdf.py
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini

@@ -1,0 +1,98 @@
+[
+  {
+    "tile_name": "aerial_canopy_tile_001",
+    "image_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\aerial_tiles\\aerial_canopy_tile_001.png",
+    "label_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\labels\\aerial_canopy_tile_001.txt",
+    "total_crowns": 23,
+    "sandalwood_crowns": 8,
+    "host_tree_crowns": 15
+  },
+  {
+    "tile_name": "aerial_canopy_tile_002",
+    "image_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\aerial_tiles\\aerial_canopy_tile_002.png",
+    "label_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\labels\\aerial_canopy_tile_002.txt",
+    "total_crowns": 13,
+    "sandalwood_crowns": 3,
+    "host_tree_crowns": 10
+  },
+  {
+    "tile_name": "aerial_canopy_tile_003",
+    "image_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\aerial_tiles\\aerial_canopy_tile_003.png",
+    "label_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\labels\\aerial_canopy_tile_003.txt",
+    "total_crowns": 20,
+    "sandalwood_crowns": 7,
+    "host_tree_crowns": 13
+  },
+  {
+    "tile_name": "aerial_canopy_tile_004",
+    "image_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\aerial_tiles\\aerial_canopy_tile_004.png",
+    "label_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\labels\\aerial_canopy_tile_004.txt",
+    "total_crowns": 14,
+    "sandalwood_crowns": 4,
+    "host_tree_crowns": 10
+  },
+  {
+    "tile_name": "aerial_canopy_tile_005",
+    "image_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\aerial_tiles\\aerial_canopy_tile_005.png",
+    "label_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\labels\\aerial_canopy_tile_005.txt",
+    "total_crowns": 22,
+    "sandalwood_crowns": 9,
+    "host_tree_crowns": 13
+  },
+  {
+    "tile_name": "aerial_canopy_tile_006",
+    "image_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\aerial_tiles\\aerial_canopy_tile_006.png",
+    "label_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\labels\\aerial_canopy_tile_006.txt",
+    "total_crowns": 21,
+    "sandalwood_crowns": 9,
+    "host_tree_crowns": 12
+  },
+  {
+    "tile_name": "aerial_canopy_tile_007",
+    "image_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\aerial_tiles\\aerial_canopy_tile_007.png",
+    "label_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\labels\\aerial_canopy_tile_007.txt",
+    "total_crowns": 21,
+    "sandalwood_crowns": 7,
+    "host_tree_crowns": 14
+  },
+  {
+    "tile_name": "aerial_canopy_tile_008",
+    "image_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\aerial_tiles\\aerial_canopy_tile_008.png",
+    "label_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\labels\\aerial_canopy_tile_008.txt",
+    "total_crowns": 18,
+    "sandalwood_crowns": 2,
+    "host_tree_crowns": 16
+  },
+  {
+    "tile_name": "aerial_canopy_tile_009",
+    "image_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\aerial_tiles\\aerial_canopy_tile_009.png",
+    "label_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\labels\\aerial_canopy_tile_009.txt",
+    "total_crowns": 22,
+    "sandalwood_crowns": 4,
+    "host_tree_crowns": 18
+  },
+  {
+    "tile_name": "aerial_canopy_tile_010",
+    "image_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\aerial_tiles\\aerial_canopy_tile_010.png",
+    "label_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\labels\\aerial_canopy_tile_010.txt",
+    "total_crowns": 22,
+    "sandalwood_crowns": 7,
+    "host_tree_crowns": 15
+  },
+  {
+    "tile_name": "aerial_canopy_tile_011",
+    "image_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\aerial_tiles\\aerial_canopy_tile_011.png",
+    "label_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\labels\\aerial_canopy_tile_011.txt",
+    "total_crowns": 16,
+    "sandalwood_crowns": 7,
+    "host_tree_crowns": 9
+  },
+  {
+    "tile_name": "aerial_canopy_tile_012",
+    "image_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\aerial_tiles\\aerial_canopy_tile_012.png",
+    "label_path": "C:\\Users\\91810\\Desktop\\dsce project\\datasets\\images\\labels\\aerial_canopy_tile_012.txt",
+    "total_crowns": 18,
+    "sandalwood_crowns": 5,
+    "host_tree_crowns": 13
+  }
+]

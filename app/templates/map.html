@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zero Trust Agroforestry GIS & Sandalwood Radar Command Center</title>
+
+    <!-- Leaflet & Clustering Libraries -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-base: #0a0e17;
+            --bg-panel: rgba(15, 23, 42, 0.85);
+            --bg-card: rgba(30, 41, 59, 0.65);
+            --bg-card-hover: rgba(51, 65, 85, 0.8);
+            --accent: #10b981;
+            --accent-glow: rgba(16, 185, 129, 0.35);
+            --accent-cyan: #38bdf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-active: rgba(16, 185, 129, 0.5);
+            --healthy: #10b981;
+            --at-risk: #f59e0b;
+            --diseased: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Top Minimalist Navigation Bar */
+        header {
+            position: absolute;
+            top: 16px;
+            left: 20px;
+            right: 20px;
+            height: 56px;
+            background: rgba(15, 23, 42, 0.82);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 0 16px var(--accent-glow);
+        }
+
+        .brand-text h1 {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .brand-text h1 span {
+            color: var(--accent);
+        }
+
+        .brand-text p {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Minimal Stat Pills */
+        .stats-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .stat-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 5px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border-glass);
+            font-size: 12px;
+        }
+
+        .stat-badge .val {
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            color: #fff;
+        }
+
+        .stat-badge .lbl {
+            color: var(--text-muted);
+        }
+
+        /* Buttons */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--border-glass);
+            padding: 7px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            color: #fff;
+            box-shadow: 0 4px 14px var(--accent-glow);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            color: #fff;
+            box-shadow: 0 6px 20px var(--accent-glow);
+        }
+
+        /* Map Canvas */
+        .map-container {
+            flex: 1;
+            position: relative;
+            height: 100vh;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+            background: #090d16;
+        }
+
+        /* Floating Destination Quick-Fly Bar */
+        .fly-bar {
+            position: absolute;
+            top: 86px;
+            left: 20px;
+            z-index: 500;
+            display: flex;
+            gap: 6px;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid var(--border-glass);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .fly-chip {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .fly-chip:hover, .fly-chip.active {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--accent-cyan);
+            border-color: var(--border-glass);
+        }
+
+        /* Floating Basemap & Control Dock (Bottom Left) */
+        .dock-bar {
+            position: absolute;
+            bottom: 24px;
+            left: 20px;
+            z-index: 500;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 6px 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .dock-item {
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .dock-item:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .dock-item.active {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+
+        .dock-divider {
+            width: 1px;
+            height: 18px;
+            background: var(--border-glass);
+            margin: 0 4px;
+        }
+
+        /* Sleek Right Floating Sidebar */
+        .floating-sidebar {
+            position: absolute;
+            top: 86px;
+            right: 20px;
+            bottom: 24px;
+            width: 380px;
+            background: var(--bg-panel);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border-glass);
+            border-radius: 18px;
+            display: flex;
+            flex-direction: column;
+            z-index: 500;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 8px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .tab-btn.active {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--accent);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        /* Search input */
+        .search-box {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .search-box input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-glass);
+            color: #fff;
+            padding: 9px 12px 9px 34px;
+            border-radius: 10px;
+            font-size: 12px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 11px;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        /* Tree Card */
+        .tree-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tree-card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-active);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .tree-id-tag {
+            font-size: 13px;
+            font-weight: 700;
+            color: #38bdf8;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .status-pill {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        .status-pill.healthy { background: rgba(16, 185, 129, 0.2); color: var(--healthy); }
+        .status-pill.at_risk { background: rgba(245, 158, 11, 0.2); color: var(--at-risk); }
+        .status-pill.diseased { background: rgba(239, 68, 68, 0.2); color: var(--diseased); }
+
+        .card-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .card-details b {
+            color: #e2e8f0;
+        }
+
+        /* Radar Panel */
+        .radar-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 14px;
+        }
+
+        .radar-box h3 {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #38bdf8;
+        }
+
+        .radar-box p {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+
+        .slider-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            accent-color: var(--accent);
+        }
+
+        /* Weather Pill */
+        .weather-pill {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(16, 185, 129, 0.05));
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+
+        .weather-stat .v {
+            font-size: 14px;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            color: #fff;
+        }
+
+        .weather-stat .l {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* Modal */
+        .modal-bg {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-box {
+            background: #111827;
+            border: 1px solid var(--border-glass);
+            border-radius: 18px;
+            width: 480px;
+            max-width: 90vw;
+            padding: 22px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .modal-header h3 {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-glass);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--accent);
+        }
+
+        /* Leaflet Popups */
+        .leaflet-popup-content-wrapper {
+            background: rgba(15, 23, 42, 0.95) !important;
+            color: #fff !important;
+            border: 1px solid var(--border-glass);
+            border-radius: 14px !important;
+            box-shadow: 0 14px 35px rgba(0,0,0,0.6);
+            backdrop-filter: blur(16px);
+        }
+
+        .leaflet-popup-tip {
+            background: rgba(15, 23, 42, 0.95) !important;
+        }
+
+        .marker-cluster-small, .marker-cluster-medium, .marker-cluster-large {
+            background-color: rgba(16, 185, 129, 0.3) !important;
+        }
+        .marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div {
+            background-color: #10b981 !important;
+            color: #fff !important;
+            font-weight: 800 !important;
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="brand">
+            <div class="brand-icon">🌲</div>
+            <div class="brand-text">
+                <h1>Sandalwood <span>Radar</span></h1>
+                <p>Agroforestry GIS & Sandalwood Radar</p>
+            </div>
+        </div>
+
+        <!-- Metric Badges -->
+        <div class="stats-group">
+            <div class="stat-badge">
+                <span class="lbl">Sandalwood Trees:</span>
+                <span class="val" id="stat-trees">--</span>
+            </div>
+            <div class="stat-badge">
+                <span class="lbl">Healthy:</span>
+                <span class="val" id="stat-healthy" style="color: var(--healthy);">--</span>
+            </div>
+            <div class="stat-badge">
+                <span class="lbl">Reserves:</span>
+                <span class="val" id="stat-regions" style="color: var(--accent-cyan);">--</span>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="header-actions">
+            <button class="btn btn-primary" onclick="openRegisterModal()"><i class="fa-solid fa-plus"></i> Register Tree</button>
+        </div>
+    </header>
+
+    <!-- Map Canvas Layout -->
+    <div class="map-container">
+        <div id="map"></div>
+
+        <!-- Quick Fly-To Destinations -->
+        <div class="fly-bar">
+            <div class="fly-chip" onclick="flyTo(13.9355, 75.5652)"><i class="fa-solid fa-location-dot"></i> Shivamogga</div>
+            <div class="fly-chip" onclick="flyTo(12.3020, 76.6420)"><i class="fa-solid fa-location-dot"></i> Mysore</div>
+            <div class="fly-chip" onclick="flyTo(12.3350, 75.8050)"><i class="fa-solid fa-location-dot"></i> Coorg</div>
+            <div class="fly-chip" onclick="flyTo(10.2798, 77.1601)"><i class="fa-solid fa-location-dot"></i> Marayoor</div>
+            <div class="fly-chip" onclick="flyTo(14.6195, 74.8354)"><i class="fa-solid fa-location-dot"></i> Sirsi</div>
+            <div class="fly-chip" onclick="flyTo(11.9180, 76.9450)"><i class="fa-solid fa-location-dot"></i> BR Hills</div>
+        </div>
+
+        <!-- Basemap Switcher Dock -->
+        <div class="dock-bar">
+            <button class="dock-item active" id="dock-sat" onclick="switchTile('esri_sat')"><i class="fa-solid fa-satellite"></i> Satellite HD</button>
+            <button class="dock-item" id="dock-dark" onclick="switchTile('carto_dark')"><i class="fa-solid fa-moon"></i> Dark GIS</button>
+            <button class="dock-item" id="dock-osm" onclick="switchTile('osm')"><i class="fa-solid fa-map"></i> Street Map</button>
+            <div class="dock-divider"></div>
+            <button class="dock-item" onclick="toggleHeatmap()"><i class="fa-solid fa-fire"></i> Heatmap</button>
+            <button class="dock-item" onclick="exportGeoJSON()"><i class="fa-solid fa-download"></i> GeoJSON</button>
+        </div>
+
+        <!-- Floating Sidebar -->
+        <div class="floating-sidebar">
+            <div class="sidebar-header">
+                <button class="tab-btn active" id="tab-trees-btn" onclick="switchSidebar('trees')"><i class="fa-solid fa-tree"></i> Trees List</button>
+                <button class="tab-btn" id="tab-radar-btn" onclick="switchSidebar('radar')"><i class="fa-solid fa-radar"></i> Spatial Radar</button>
+            </div>
+
+            <!-- Tab 1: Trees -->
+            <div class="sidebar-content" id="pane-trees">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="tree-search-input" placeholder="Filter by Tree ID (e.g. SW-KA-00001)..." oninput="onSearchFilter()">
+                </div>
+                <div id="tree-cards-list">
+                    <p style="text-align: center; color: var(--text-muted); font-size: 12px; margin-top: 24px;">Loading sandalwood trees...</p>
+                </div>
+            </div>
+
+            <!-- Tab 2: Radar -->
+            <div class="sidebar-content" id="pane-radar" style="display: none;">
+                <div class="radar-box">
+                    <h3><i class="fa-solid fa-crosshairs"></i> Proximity Radar</h3>
+                    <p>Click any coordinate on the satellite map to sweep the surrounding zone for registered sandalwood trees.</p>
+                    <div class="slider-wrap">
+                        <span>Range Radius</span>
+                        <span id="radius-val" style="font-weight: 800; color: var(--accent); font-family: 'JetBrains Mono', monospace;">1000m</span>
+                    </div>
+                    <input type="range" id="radar-range" min="100" max="10000" step="100" value="1000" oninput="onRadiusChange(this.value)">
+                </div>
+
+                <div class="weather-pill">
+                    <div class="weather-stat">
+                        <div class="v" id="wx-temp">28.4°C</div>
+                        <div class="l">Temperature</div>
+                    </div>
+                    <div class="weather-stat">
+                        <div class="v" id="wx-hum">68%</div>
+                        <div class="l">Humidity</div>
+                    </div>
+                    <div class="weather-stat">
+                        <div class="v" id="wx-soil">52%</div>
+                        <div class="l">Soil Moisture</div>
+                    </div>
+                </div>
+
+                <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">
+                    Nearby Detected Trees (<span id="radar-count">0</span>)
+                </div>
+                <div id="radar-results-list">
+                    <p style="text-align: center; color: var(--text-muted); font-size: 12px; margin-top: 16px;">Click map to sweep area</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tree Registration Modal -->
+    <div class="modal-bg" id="reg-modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>Register Sandalwood Tree</h3>
+                <i class="fa-solid fa-xmark" style="cursor: pointer; color: var(--text-muted);" onclick="closeRegisterModal()"></i>
+            </div>
+            <div class="form-group">
+                <label>Tree ID (you assign) *</label>
+                <input type="text" id="reg-tree-uid" placeholder="e.g. KA-01" maxlength="20" required>
+            </div>
+            <div class="form-group">
+                <label>Assigned Reserve</label>
+                <select id="reg-region"></select>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group">
+                    <label>GPS Latitude</label>
+                    <input type="number" step="0.000001" id="reg-lat" value="13.9355">
+                </div>
+                <div class="form-group">
+                    <label>GPS Longitude</label>
+                    <input type="number" step="0.000001" id="reg-lon" value="75.5652">
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                <div class="form-group">
+                    <label>Age (Yrs)</label>
+                    <input type="number" id="reg-age" value="12">
+                </div>
+                <div class="form-group">
+                    <label>Girth (cm)</label>
+                    <input type="number" step="0.1" id="reg-girth" value="42.0">
+                </div>
+                <div class="form-group">
+                    <label>Height (m)</label>
+                    <input type="number" step="0.1" id="reg-height" value="8.0">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Health Condition</label>
+                <select id="reg-status">
+                    <option value="HEALTHY">🟢 HEALTHY - High Vigor</option>
+                    <option value="AT_RISK">🟡 AT_RISK - Moisture Stress</option>
+                    <option value="DISEASED">🔴 DISEASED - Spike Disease</option>
+                </select>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px;">
+                <button class="btn" onclick="closeRegisterModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="submitRegistration()"><i class="fa-solid fa-check"></i> Register Tree</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+
+    <script>
+        let map;
+        let layers = {};
+        let currentTile = 'esri_sat';
+        let clusterGroup, regionGroup, heatmapLayer = null;
+        let radarCircle = null, radarMarker = null;
+        let searchRadius = 1000;
+        let lastLat = 13.9355, lastLon = 75.5652;
+        let treesData = [];
+        let regionsData = [];
+
+        function getMarkerIcon(status) {
+            let color = '#10b981';
+            if (status === 'AT_RISK') color = '#f59e0b';
+            if (status === 'DISEASED') color = '#ef4444';
+            if (status === 'HARVESTED') color = '#6b7280';
+
+            return L.divIcon({
+                className: 'tree-pin',
+                html: `
+                    <div style="width: 24px; height: 24px; background: ${color}; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 10px ${color}; display: flex; align-items: center; justify-content: center; font-size: 11px;">
+                        🌲
+                    </div>
+                `,
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+        }
+
+        function initMap() {
+            map = L.map('map', {
+                center: [13.9355, 75.5652],
+                zoom: 13,
+                zoomControl: false,
+                attributionControl: false
+            });
+
+            L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+            layers['esri_sat'] = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{r}', { maxZoom: 19 }).addTo(map);
+            layers['carto_dark'] = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
+            layers['osm'] = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
+
+            clusterGroup = L.markerClusterGroup({ showCoverageOnHover: false, maxClusterRadius: 35 }).addTo(map);
+            regionGroup = L.featureGroup().addTo(map);
+
+            map.on('click', function(e) {
+                runRadar(e.latlng.lat, e.latlng.lng, searchRadius);
+                fetchLiveWeather(e.latlng.lat, e.latlng.lng);
+            });
+
+            loadData();
+        }
+
+        function switchTile(name) {
+            Object.values(layers).forEach(l => map.removeLayer(l));
+            layers[name].addTo(map);
+            document.querySelectorAll('.dock-item').forEach(b => b.classList.remove('active'));
+            if (name === 'esri_sat') document.getElementById('dock-sat').classList.add('active');
+            if (name === 'carto_dark') document.getElementById('dock-dark').classList.add('active');
+            if (name === 'osm') document.getElementById('dock-osm').classList.add('active');
+        }
+
+        function flyTo(lat, lon) {
+            map.flyTo([lat, lon], 14, { duration: 1.6 });
+            runRadar(lat, lon, searchRadius);
+            fetchLiveWeather(lat, lon);
+        }
+
+        async function loadData() {
+            try {
+                const infoRes = await fetch('/api/v1/system/info');
+                if (infoRes.ok) {
+                    const info = await infoRes.json();
+                    document.getElementById('stat-trees').innerText = info.total_trees;
+                    document.getElementById('stat-healthy').innerText = info.active_trees;
+                    document.getElementById('stat-regions').innerText = info.total_regions;
+                }
+
+                const mapRes = await fetch('/api/v1/dashboard/map-layer');
+                if (mapRes.ok) {
+                    const data = await mapRes.json();
+                    renderFeatures(data.features || []);
+                }
+            } catch (e) {
+                console.error("Data load failed:", e);
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str && str !== 0) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function renderFeatures(features) {
+            clusterGroup.clearLayers();
+            regionGroup.clearLayers();
+            treesData = [];
+            regionsData = [];
+
+            const select = document.getElementById('reg-region');
+            select.innerHTML = '';
+
+            features.forEach(f => {
+                const p = f.properties;
+                if (p.layer_type === 'REGION_BOUNDARY') {
+                    regionsData.push(p);
+
+                    const opt = document.createElement('option');
+                    opt.value = p.region_id;
+                    opt.innerText = `${p.name} (${p.region_id})`;
+                    select.appendChild(opt);
+
+                    const poly = L.geoJSON(f, {
+                        style: {
+                            color: '#10b981',
+                            weight: 2,
+                            opacity: 0.8,
+                            fillColor: '#10b981',
+                            fillOpacity: 0.12
+                        }
+                    });
+
+                    poly.bindPopup(`
+                        <div style="font-size: 13px; line-height: 1.5;">
+                            <h4 style="color: #10b981; margin-bottom: 4px;">🗺️ ${escapeHtml(p.name)}</h4>
+                            <p style="color: #94a3b8; font-size: 11px;">ID: ${escapeHtml(p.region_id)} &bull; Area: ${escapeHtml(p.area_hectares)} ha</p>
+                        </div>
+                    `);
+                    regionGroup.addLayer(poly);
+                }
+
+                if (p.layer_type === 'SANDALWOOD_TREE') {
+                    treesData.push(p);
+                    const coords = [f.geometry.coordinates[1], f.geometry.coordinates[0]];
+                    const marker = L.marker(coords, { icon: getMarkerIcon(p.status) });
+
+                    marker.bindPopup(`
+                        <div style="font-size: 13px; line-height: 1.5; min-width: 200px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <h4 style="color: #38bdf8; margin: 0; font-family: 'JetBrains Mono', monospace;">🌲 ${escapeHtml(p.tree_uid)}</h4>
+                                <span class="status-pill ${escapeHtml((p.status || '').toLowerCase())}">${escapeHtml(p.status)}</span>
+                            </div>
+                            <p style="color: #9ca3af; font-size: 11px; margin-bottom: 6px;"><i>${escapeHtml(p.species || 'Santalum album')}</i></p>
+                            <div style="font-size: 11px; color: var(--text-muted); line-height: 1.6; margin-bottom: 8px;">
+                                <div>Age: <b>${escapeHtml(p.estimated_age_years || 'N/A')} yrs</b> | Girth: <b>${escapeHtml(p.girth_cm || 'N/A')} cm</b></div>
+                                <div>GPS: <b>${coords[0].toFixed(5)}°, ${coords[1].toFixed(5)}°</b></div>
+                            </div>
+                            <button onclick="runRadar(${coords[0]}, ${coords[1]}, 1000)" 
+                                    style="width: 100%; background: #10b981; color: #fff; border: none; padding: 5px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer;">
+                                <i class="fa-solid fa-crosshairs"></i> Sweep 1km Radius
+                            </button>
+                        </div>
+                    `);
+                    clusterGroup.addLayer(marker);
+                }
+            });
+
+            renderTreeCards(treesData);
+        }
+
+        function renderTreeCards(list) {
+            const el = document.getElementById('tree-cards-list');
+            if (!list.length) {
+                el.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 12px; margin-top: 24px;">No trees found</p>';
+                return;
+            }
+
+            el.innerHTML = list.map(t => `
+                <div class="tree-card" onclick="flyToTree('${escapeHtml(t.tree_uid)}')">
+                    <div class="card-top">
+                        <span class="tree-id-tag">🌲 ${escapeHtml(t.tree_uid)}</span>
+                        <span class="status-pill ${escapeHtml((t.status || '').toLowerCase())}">${escapeHtml(t.status)}</span>
+                    </div>
+                    <div class="card-details">
+                        <span><i>${escapeHtml(t.species || 'Santalum album')}</i></span>
+                        <span>Age: <b>${escapeHtml(t.estimated_age_years || 'N/A')}y</b> &bull; ${escapeHtml(t.height_m || 'N/A')}m</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function onSearchFilter() {
+            const q = document.getElementById('tree-search-input').value.toLowerCase().trim();
+            const filtered = treesData.filter(t => t.tree_uid.toLowerCase().includes(q) || (t.species && t.species.toLowerCase().includes(q)));
+            renderTreeCards(filtered);
+        }
+
+        function flyToTree(uid) {
+            const tree = treesData.find(t => t.tree_uid === uid);
+            if (tree) {
+                clusterGroup.eachLayer(layer => {
+                    const content = layer.getPopup() ? layer.getPopup().getContent() : '';
+                    if (content.includes(uid)) {
+                        map.flyTo(layer.getLatLng(), 17, { duration: 1.4 });
+                        setTimeout(() => layer.openPopup(), 1500);
+                    }
+                });
+            }
+        }
+
+        async function runRadar(lat, lon, r) {
+            lastLat = lat;
+            lastLon = lon;
+
+            switchSidebar('radar');
+
+            if (radarCircle) map.removeLayer(radarCircle);
+            if (radarMarker) map.removeLayer(radarMarker);
+
+            radarCircle = L.circle([lat, lon], {
+                radius: r,
+                color: '#38bdf8',
+                fillColor: '#38bdf8',
+                fillOpacity: 0.12,
+                weight: 1.5
+            }).addTo(map);
+
+            radarMarker = L.circleMarker([lat, lon], {
+                radius: 6,
+                color: '#38bdf8',
+                fillColor: '#fff',
+                fillOpacity: 1
+            }).addTo(map);
+
+            const resList = document.getElementById('radar-results-list');
+            resList.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 12px;"><i class="fa-solid fa-spinner fa-spin"></i> Scanning...</p>';
+
+            try {
+                const res = await fetch('/api/v1/trees/nearby', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ latitude: lat, longitude: lon, radius_meters: r })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('radar-count').innerText = data.total_found;
+
+                    if (!data.trees || !data.trees.length) {
+                        resList.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 12px; margin-top: 12px;">No trees in radius</p>';
+                        return;
+                    }
+
+                    resList.innerHTML = data.trees.map(i => `
+                        <div class="tree-card" onclick="flyToTree('${i.tree.tree_uid}')">
+                            <div class="card-top">
+                                <span class="tree-id-tag">🌲 ${i.tree.tree_uid}</span>
+                                <span style="font-size: 11px; font-weight: 700; color: var(--accent);">${Math.round(i.distance_meters)}m</span>
+                            </div>
+                            <div class="card-details">
+                                <span><i>${i.tree.species}</i></span>
+                                <span>Age: <b>${i.tree.estimated_age_years || 'N/A'} yrs</b></span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                resList.innerHTML = '<p style="color: var(--diseased); font-size: 12px;">Search failed</p>';
+            }
+        }
+
+        function onRadiusChange(v) {
+            searchRadius = parseInt(v);
+            document.getElementById('radius-val').innerText = `${searchRadius}m`;
+            if (radarCircle) runRadar(lastLat, lastLon, searchRadius);
+        }
+
+        async function fetchLiveWeather(lat, lon) {
+            try {
+                const res = await fetch(`/api/v1/satellite/live-weather?latitude=${lat}&longitude=${lon}`);
+                if (!res.ok) {
+                    console.warn('Live weather unavailable', res.status);
+                    return;
+                }
+                const w = await res.json();
+                document.getElementById('wx-temp').innerText = `${Number(w.temperature_celsius).toFixed(1)}°C`;
+                document.getElementById('wx-hum').innerText = `${Number(w.relative_humidity_percent).toFixed(0)}%`;
+                document.getElementById('wx-soil').innerText = `${Number(w.soil_moisture_surface_percent).toFixed(0)}%`;
+            } catch (e) {
+                console.warn('Live weather fetch failed', e);
+            }
+        }
+
+        function toggleHeatmap() {
+            if (heatmapLayer) {
+                map.removeLayer(heatmapLayer);
+                heatmapLayer = null;
+            } else {
+                const pts = treesData.map(t => [t.latitude || 13.9355, t.longitude || 75.5652, 0.8]);
+                heatmapLayer = L.heatLayer(pts, { radius: 26, blur: 18 }).addTo(map);
+            }
+        }
+
+        function exportGeoJSON() {
+            const data = {
+                type: "FeatureCollection",
+                features: treesData.map(t => ({
+                    type: "Feature",
+                    geometry: { type: "Point", coordinates: [t.longitude, t.latitude] },
+                    properties: t
+                }))
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "sandalwood_trees.geojson";
+            a.click();
+        }
+
+        function switchSidebar(tab) {
+            document.getElementById('tab-trees-btn').classList.toggle('active', tab === 'trees');
+            document.getElementById('tab-radar-btn').classList.toggle('active', tab === 'radar');
+            document.getElementById('pane-trees').style.display = tab === 'trees' ? 'block' : 'none';
+            document.getElementById('pane-radar').style.display = tab === 'radar' ? 'block' : 'none';
+        }
+
+        function openRegisterModal() { document.getElementById('reg-modal').style.display = 'flex'; }
+        function closeRegisterModal() { document.getElementById('reg-modal').style.display = 'none'; }
+
+        async function submitRegistration() {
+            const treeUid = (document.getElementById('reg-tree-uid').value || '').trim();
+            if (!treeUid) {
+                alert('Enter a Tree ID (e.g. KA-01)');
+                return;
+            }
+            const payload = {
+                tree_uid: treeUid,
+                region_id: document.getElementById('reg-region').value,
+                species: "Santalum album",
+                latitude: parseFloat(document.getElementById('reg-lat').value),
+                longitude: parseFloat(document.getElementById('reg-lon').value),
+                estimated_age_years: parseInt(document.getElementById('reg-age').value) || null,
+                girth_cm: parseFloat(document.getElementById('reg-girth').value) || null,
+                height_m: parseFloat(document.getElementById('reg-height').value) || null,
+                status: document.getElementById('reg-status').value
+            };
+
+            try {
+                const res = await fetch('/api/v1/trees', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    alert(`Sandalwood Tree Registered: ${data.tree_uid} (live weather stored)`);
+                    closeRegisterModal();
+                    loadData();
+                } else {
+                    const err = await res.json();
+                    const msg = (err.error && err.error.message) || err.message || 'Registration failed';
+                    alert(`Error: ${msg}`);
+                }
+            } catch (e) {
+                alert(`Error: ${e.message}`);
+            }
+        }
+
+        window.onload = initMap;
+    </script>
+</body>
+</html>

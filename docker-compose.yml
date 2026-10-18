@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  # 1. FastAPI Application Backend
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: zero-trust-agroforestry-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - APP_ENV=${APP_ENV:-development}
+      - DEBUG=${DEBUG:-true}
+      - SEED_DEMO_DATA=${SEED_DEMO_DATA:-true}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://agro_admin:change-me@postgres:5432/agroforestry_db}
+      - MQTT_HOST=mosquitto
+      - MQTT_PORT=1883
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - BLOCKCHAIN_RPC=${BLOCKCHAIN_RPC:-http://host.docker.internal:8545}
+      - JWT_SECRET=${JWT_SECRET:-}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mosquitto:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 2. PostgreSQL 16 Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: agroforestry-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-agro_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      POSTGRES_DB: ${POSTGRES_DB:-agroforestry_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-agro_admin} -d ${POSTGRES_DB:-agroforestry_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 3. Redis In-Memory Cache / Token Revocation Store
+  redis:
+    image: redis:7-alpine
+    container_name: agroforestry-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # 4. Eclipse Mosquitto MQTT Broker
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: agroforestry-mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_logs:/mosquitto/log
+
+volumes:
+  postgres_data:
+  redis_data:
+  mosquitto_data:
+  mosquitto_logs:

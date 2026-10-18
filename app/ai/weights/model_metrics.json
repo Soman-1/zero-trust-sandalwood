@@ -1,0 +1,231 @@
+{
+  "model_version": "v2.0-advanced-ensemble",
+  "dataset_size": 10500,
+  "training_samples": 8400,
+  "test_samples": 2100,
+  "num_features": 21,
+  "overall_accuracy": 0.9981,
+  "mean_cross_val_score": 0.999,
+  "sandalwood_precision": 1.0,
+  "sandalwood_recall": 1.0,
+  "sandalwood_f1_score": 1.0,
+  "sandalwood_mean_confidence": 0.9952,
+  "sandalwood_min_confidence": 0.9491,
+  "confusion_matrix": [
+    [
+      300,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      300,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      300,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      298,
+      1,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      300,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      300,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      2,
+      0,
+      0,
+      298
+    ]
+  ],
+  "feature_names": [
+    "band2_blue",
+    "band3_green",
+    "band4_red",
+    "band5_red_edge",
+    "band8_nir",
+    "band11_swir1",
+    "band12_swir2",
+    "ndvi",
+    "evi",
+    "ndmi",
+    "ci_red_edge",
+    "savi",
+    "ndre",
+    "gndvi",
+    "canopy_height_m",
+    "nir_swir2_ratio",
+    "red_edge_red_ratio",
+    "swir1_swir2_ratio",
+    "blue_red_ratio",
+    "green_red_ratio",
+    "nir_red_edge_slope"
+  ],
+  "feature_importance": [
+    [
+      "band8_nir",
+      0.12366
+    ],
+    [
+      "savi",
+      0.09145
+    ],
+    [
+      "band5_red_edge",
+      0.08919
+    ],
+    [
+      "band12_swir2",
+      0.08382
+    ],
+    [
+      "nir_swir2_ratio",
+      0.08018
+    ],
+    [
+      "band11_swir1",
+      0.07439
+    ],
+    [
+      "evi",
+      0.06804
+    ],
+    [
+      "canopy_height_m",
+      0.06279
+    ],
+    [
+      "green_red_ratio",
+      0.05863
+    ],
+    [
+      "ndmi",
+      0.04762
+    ],
+    [
+      "ndvi",
+      0.04412
+    ],
+    [
+      "band3_green",
+      0.03424
+    ],
+    [
+      "band4_red",
+      0.02881
+    ],
+    [
+      "red_edge_red_ratio",
+      0.02797
+    ],
+    [
+      "swir1_swir2_ratio",
+      0.02721
+    ]
+  ],
+  "species_classes": [
+    "Indian Sandalwood",
+    "Teak",
+    "Rosewood",
+    "Eucalyptus",
+    "Neem",
+    "Bamboo",
+    "Mixed Forest Canopy"
+  ],
+  "ensemble_architecture": "RF(400) + ET(350) + GBM(200) \u2192 SoftVote[2:2:1] \u2192 CalibratedCV(5)",
+  "detailed_report": {
+    "Indian Sandalwood": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 300.0
+    },
+    "Teak": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 300.0
+    },
+    "Rosewood": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 300.0
+    },
+    "Eucalyptus": {
+      "precision": 0.9933333333333333,
+      "recall": 0.9933333333333333,
+      "f1-score": 0.9933333333333333,
+      "support": 300.0
+    },
+    "Neem": {
+      "precision": 0.9966777408637874,
+      "recall": 1.0,
+      "f1-score": 0.9983361064891847,
+      "support": 300.0
+    },
+    "Bamboo": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 300.0
+    },
+    "Mixed Forest Canopy": {
+      "precision": 0.9966555183946488,
+      "recall": 0.9933333333333333,
+      "f1-score": 0.994991652754591,
+      "support": 300.0
+    },
+    "accuracy": 0.9980952380952381,
+    "macro avg": {
+      "precision": 0.9980952275131099,
+      "recall": 0.998095238095238,
+      "f1-score": 0.9980944417967298,
+      "support": 2100.0
+    },
+    "weighted avg": {
+      "precision": 0.99809522751311,
+      "recall": 0.9980952380952381,
+      "f1-score": 0.9980944417967298,
+      "support": 2100.0
+    }
+  }
+}
