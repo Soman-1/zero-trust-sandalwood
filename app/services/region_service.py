@@ -1,6 +1,6 @@
 """Region management and geographical boundary verification service."""
 
-from typing import List, Optional, Union
+from typing import List, Optional, Tuple, Union
 from sqlalchemy.orm import Session
 from sqlalchemy import select, func
 
